@@ -1,9 +1,23 @@
 # If you get a policy error, first do:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
-# Then run the script with your values:
+USAGE EXAMPLE
+-------------
 .\setup-forge.ps1 `
-  -ClientId "MZmHJCkq1Aps3ZzjzKwrceKsaQArmih8G9V9Vy1TaKOkX3zZ" `
-  -ClientSecret "xrzEksUCGi6jHw1wMKjLEz02xOIgtzYiWYkLFPedk4yz6pOqGCWR2GYPMSzMjq2C" `
-  -BucketName "testbox" `
-  -FilePath "C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\Acrylic-Box-parametric-screws.f3d"
+  -ClientId         "MZmHJCkq1Aps3ZzjzKwrceKsaQArmih8G9V9Vy1TaKOkX3zZ" `
+  -ClientSecret     "xrzEksUCGi6jHw1wMKjLEz02xOIgtzYiWYkLFPedk4yz6pOqGCWR2GYPMSzMjq2C" `
+  -BucketName       "sayan-testbox-1234" `
+  -FilePath         "C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\Acrylic-Box-parametric-screws.f3d" `
+  -AppBundleZipPath "C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\ParametricDXFApp.zip" `
+  -AppBundleName    "ParametricDXFApp" `
+  -ActivityId       "ParametricDXFActivity"
+
+REQUIRED INPUTS
+---------------
+ ClientId          → APS (Forge) App’s Client ID
+ ClientSecret      → APS App’s Client Secret
+ BucketName        → globally‑unique OSS bucket (e.g. yourname‑templates‑1234)
+ FilePath          → full path to your template .f3d
+ AppBundleZipPath  → full path to ParametricDXFApp.zip  (contains ParametricDXF.ts in the root)
+ AppBundleName     → identifier you choose, e.g. ParametricDXFApp
+ ActivityId        → identifier you choose, e.g. ParametricDXFActivity
