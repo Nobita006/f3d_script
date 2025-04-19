@@ -1,20 +1,41 @@
-import adsk.core, adsk.fusion, traceback, os, sys
+import adsk.core, adsk.fusion, traceback, os, sys, json
 
 # ───────────── configure once ─────────────
-EXPORT_DIR = (r"C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance"
-              r"\f3d_script")
+EXPORT_DIR = os.getcwd()        # write and read files from the DA working dir
+DIMS_JSON  = 'dims.json'        # DA will inject dims.json here by localName
 
-PARAM_UPDATES = {
-    'Length_Screws': '4',
-    'Width_Screws' : '3',
-    'Length'       : '200 mm',
-    'Width'        : '400 mm',
-    'Height'       : '100 mm'
+# Default values (fallback if JSON is missing or a key is absent)
+DEFAULT_DIMS = {
+    'Length_Screws': 4,
+    'Width_Screws' : 4,
+    'Length'       : 200,  # mm
+    'Width'        : 400,  # mm
+    'Height'       : 100   # mm
 }
 
 TARGET_PREFIXES    = ('top', 'side1', 'side2')   # components to export
 POLYLINE_TOLERANCE = 1e-4                        # mm
 # ───────────────────────────────────────────
+
+def load_dimensions():
+    """Load the dims JSON if present, otherwise return DEFAULT_DIMS."""
+    if os.path.exists(DIMS_JSON):
+        try:
+            with open(DIMS_JSON, 'r') as f:
+                data = json.load(f)
+            # cast and fallback to defaults
+            return {
+                'Length_Screws': int(data.get('Length_Screws', DEFAULT_DIMS['Length_Screws'])),
+                'Width_Screws' : int(data.get('Width_Screws',  DEFAULT_DIMS['Width_Screws'])),
+                'Length'       : float(data.get('Length',       DEFAULT_DIMS['Length'])),
+                'Width'        : float(data.get('Width',        DEFAULT_DIMS['Width'])),
+                'Height'       : float(data.get('Height',       DEFAULT_DIMS['Height']))
+            }
+        except Exception as e:
+            adsk.core.Application.get().userInterface.messageBox(
+                f"Failed to parse dims.json: {e}\nUsing defaults."
+            )
+    return DEFAULT_DIMS.copy()
 
 def largest_planar_face(body):
     best, area = None, 0.0
@@ -37,27 +58,34 @@ def run(context):
     try:
         app    = adsk.core.Application.get()
         ui     = app.userInterface
+
+        # Load dims (from JSON or defaults)
+        dims = load_dimensions()
+
+        # 1) Open design & cast
         design = adsk.fusion.Design.cast(app.activeProduct)
         if not design:
-            ui.messageBox('❌  No Fusion design active.'); return
+            ui.messageBox('No Fusion design active.'); return
 
-        # 1) Update parameters
-        for name, expr in PARAM_UPDATES.items():
-            prm = design.userParameters.itemByName(name)
-            if prm:
-                prm.expression = expr
+        # 2) Update user parameters
+        p = design.userParameters
+        p.itemByName('Length_Screws').expression = str(dims['Length_Screws'])
+        p.itemByName('Width_Screws' ).expression = str(dims['Width_Screws'])
+        p.itemByName('Length'       ).expression = f"{dims['Length']} mm"
+        p.itemByName('Width'        ).expression = f"{dims['Width']} mm"
+        p.itemByName('Height'       ).expression = f"{dims['Height']} mm"
 
-        # 2) Prepare export folder & manager
+        # 3) Prepare export
         os.makedirs(EXPORT_DIR, exist_ok=True)
         exp_mgr = design.exportManager
         root    = design.rootComponent
 
         exported, skipped = [], []
 
-        # 3) Loop over occurrences
+        # 4) Loop occurrences
         for occ in root.occurrences:
-            lname = occ.name.lower()
-            if 'mirror' in lname or not any(lname.startswith(p) for p in TARGET_PREFIXES):
+            name = occ.name.lower()
+            if 'mirror' in name or not any(name.startswith(pref) for pref in TARGET_PREFIXES):
                 continue
 
             flat = flat_pattern_for(occ.component)
@@ -65,13 +93,11 @@ def run(context):
                 skipped.append(occ.name)
                 continue
 
-            # ←――――――――――――――――――――――――――――――――――――――
-            # Use the *component* name (no colon!) to build a valid file name:
-            compName = occ.component.name       # e.g. "Top", not "Top:1"
-            dxf_file = os.path.join(EXPORT_DIR, f'{compName}_flat.dxf')
-            # ―――――――――――――――――――――――――――――――――――――――→
+            compName = occ.component.name      # “Top”, “Side1”, “Side2”
+            dxfFile  = os.path.join(EXPORT_DIR, f"{compName}_flat.dxf")
+            opts = exp_mgr.createDXFFlatPatternExportOptions(dxfFile, flat)
 
-            opts = exp_mgr.createDXFFlatPatternExportOptions(dxf_file, flat)
+            # closed poly‑lines & tolerance
             if hasattr(opts, 'isSplineConvertedToPolyline'):
                 opts.isSplineConvertedToPolyline = True
             if hasattr(opts, 'convertToPolylineTolerance'):
@@ -80,14 +106,14 @@ def run(context):
             exp_mgr.execute(opts)
             exported.append(compName)
 
-        # 4) Report
-        msg = f'✅  DXF export complete.\n\nExported: {exported or "-"}'
+        # 5) Report
+        msg  = f"DXF export done.\n\nExported: {exported or '-'}"
         if skipped:
-            msg += f'\nSkipped (no planar faces): {skipped}'
+            msg += f"\nSkipped (no planar faces): {skipped}"
         ui.messageBox(msg)
 
     except:
         if ui:
-            ui.messageBox('⚠️  Failed:\n' + traceback.format_exc())
+            ui.messageBox('Failed:\n' + traceback.format_exc())
         else:
             print(traceback.format_exc(), file=sys.stderr)

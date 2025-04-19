@@ -4,9 +4,9 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 USAGE EXAMPLE
 -------------
 .\setup-forge.ps1 `
-  -ClientId         "MZmHJCkq1Aps3ZzjzKwrceKsaQArmih8G9V9Vy1TaKOkX3zZ" `
-  -ClientSecret     "xrzEksUCGi6jHw1wMKjLEz02xOIgtzYiWYkLFPedk4yz6pOqGCWR2GYPMSzMjq2C" `
-  -BucketName       "sayan-testbox-1234" `
+  -ClientId         "TN352jyhQvWu7FvuLdG2oVtsd0bOw6GlObtfGRQbeMamnXTE" `
+  -ClientSecret     "BV3ptopG3pOXvRG6VB6wGx0QMdeiK1YxzHHsWZXkXAqi22GIFzINCuUc8GVQeSXZ" `
+  -BucketName       "sayan-parameter" `
   -FilePath         "C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\Acrylic-Box-parametric-screws.f3d" `
   -AppBundleZipPath "C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\ParametricDXFApp.zip" `
   -AppBundleName    "ParametricDXFApp" `
@@ -21,3 +21,97 @@ REQUIRED INPUTS
  AppBundleZipPath  → full path to ParametricDXFApp.zip  (contains ParametricDXF.ts in the root)
  AppBundleName     → identifier you choose, e.g. ParametricDXFApp
  ActivityId        → identifier you choose, e.g. ParametricDXFActivity
+
+---------------------------------------------
+
+PS C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP> .\setup-forge.ps1 `
+>>   -ClientId         "MZmHJCkq1Aps3ZzjzKwrceKsaQArmih8G9V9Vy1TaKOkX3zZ" `
+>>   -ClientSecret     "xrzEksUCGi6jHw1wMKjLEz02xOIgtzYiWYkLFPedk4yz6pOqGCWR2GYPMSzMjq2C" `
+>>   -BucketName       "sayan-testbox-1" `
+>>   -FilePath         "C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\Acrylic-Box-parametric-screws.f3d" `
+>>   -AppBundleZipPath "C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\ParametricDXFApp.zip" `
+>>   -AppBundleName    "ParametricDXFApp1" `
+>>   -ActivityId       "ParametricDXFActivity1"
+[token ok]
+
+
+bucketKey   : sayan-testbox-1
+bucketOwner : MZmHJCkq1Aps3ZzjzKwrceKsaQArmih8G9V9Vy1TaKOkX3zZ
+createdDate : 1744994972406
+permissions : {@{authId=MZmHJCkq1Aps3ZzjzKwrceKsaQArmih8G9V9Vy1TaKOkX3zZ; access=full}}
+policyKey   : persistent
+
+[bucket created]
+
+bucketKey   : sayan-testbox-1
+objectId    : urn:adsk.objects:os.object:sayan-testbox-1/Acrylic-Box-parametric-screws.f3d
+objectKey   : Acrylic-Box-parametric-screws.f3d
+size        : 1475649
+contentType : application/octet-stream
+location    : https://developer.api.autodesk.com/oss/v2/buckets/sayan-testbox-1/objects/Acrylic-Box-parametric-screws.f3d
+
+[uploaded .f3d]
+[bundle version 1]
+[bundle upload not required]
+[activity created]
+
+Forge ready
+ URN      : urn:adsk.objects:os.object:sayan-testbox-1/Acrylic-Box-parametric-screws.f3d
+ Bundle   : MZmHJCkq1Aps3ZzjzKwrceKsaQArmih8G9V9Vy1TaKOkX3zZ.ParametricDXFApp1+prod
+ Activity : ParametricDXFActivity1
+
+
+PS C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP>
+
+
+.\upload.ps1 `
+  -ClientId     "MZmHJCkq1Aps3ZzjzKwrceKsaQArmih8G9V9Vy1TaKOkX3zZ" `
+  -ClientSecret "xrzEksUCGi6jHw1wMKjLEz02xOIgtzYiWYkLFPedk4yz6pOqGCWR2GYPMSzMjq2C" `
+  -BucketName   "sayan-testbox-1" `
+  -FilePath     "C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\dims.json"
+
+------------------
+
+PS C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP> .\upload.ps1 `
+>>   -ClientId     "MZmHJCkq1Aps3ZzjzKwrceKsaQArmih8G9V9Vy1TaKOkX3zZ" `
+>>   -ClientSecret "xrzEksUCGi6jHw1wMKjLEz02xOIgtzYiWYkLFPedk4yz6pOqGCWR2GYPMSzMjq2C" `
+>>   -BucketName   "sayan-testbox-1" `
+>>   -FilePath     "C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\dims.json"
+[token ok]
+[bucket exists]
+
+
+
+bucketKey   : sayan-testbox-1
+objectId    : urn:adsk.objects:os.object:sayan-testbox-1/dims.json
+objectKey   : dims.json
+size        : 101
+contentType : application/octet-stream
+location    : https://developer.api.autodesk.com/oss/v2/buckets/sayan-testbox-1/objects/dims.json
+
+[uploaded .json]
+  
+.\test.ps1 `
+  -ClientId      "MZmHJCkq1Aps3ZzjzKwrceKsaQArmih8G9V9Vy1TaKOkX3zZ" `
+  -ClientSecret  "xrzEksUCGi6jHw1wMKjLEz02xOIgtzYiWYkLFPedk4yz6pOqGCWR2GYPMSzMjq2C" `
+  -BucketName    "sayan-testbox-1" `
+  -ActivityId    "ParametricDXFActivity1" `
+  -TemplateFile  "Acrylic-Box-parametric-screws.f3d" `
+  -DimsFile      "dims.json" `
+  -OutputFolder  "C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\ForgeTest"
+
+
+
+
+
+  PS C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\da-mvp> node index.js
+token ok
+Bucket created
+Uploaded Acrylic-Box-parametric-screws.f3d
+Uploaded dims.json
+Uploaded ParametricDXFApp.zip
+AppBundle created, version 1
+Alias prod created
+Activity created: N3iFQQPD1ZCLDYAHxzjyTMrXsQuIiu1FuMB8eDB8wZrE4MMV.ParametricDXFActivity
+Forge provisioning steps completed successfully.
+PS C:\Users\sayan\OneDrive\Documents\Visual_Studio_2022\Freelance\f3d_script\MVP\da-mvp>
